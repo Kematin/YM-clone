@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "ym-clone"
+version = "0.1.0"
+description = ""
+authors = ["kematin <kematin@inbox.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.104.1"
+pytest = "^7.4.3"
+beanie = "^1.23.6"
+pyjwt = "^2.8.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

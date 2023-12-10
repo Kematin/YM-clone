@@ -19,6 +19,7 @@ jobs:
         run: flake8 {models,routes,services,tests,settings.py,main.py}
   
   test:
+    needs: [lint]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

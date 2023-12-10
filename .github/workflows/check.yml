@@ -7,8 +7,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Move to api
-        run: cd backend
+        run: cd api
       - name: Install deps
         run: poetry install --only dev --no-root
       - name: Lint
-        run: flake8 api/{models,routes,services,tests,settings.py,main.py}
+        run: flake8 {models,routes,services,tests,settings.py,main.py}

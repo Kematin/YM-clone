@@ -10,8 +10,9 @@ jobs:
       - name: Install deps
         working-directory: ./backend/api
         run: |
-          pip install poetry
-          poetry install --only dev --no-root
+          pip install flake8==6.1.0
+          pip install flake8-bugbear==23.12.2
+          pip install pep8-naming==0.13.3
 
       - name: Lint
         working-directory: ./backend/api
@@ -26,8 +27,8 @@ jobs:
       - name: Install deps
         working-directory: ./backend/api
         run: |
-          pip install poetry
-          poetry install --only dev --no-root
+          pip install pytest==7.4.3
+          pip install coverage==7.3.2
 
       - name: Test
         working-directory: ./backend/api

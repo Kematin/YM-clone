@@ -19,3 +19,17 @@ jobs:
   
   test:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Move to api
+        run: cd backend/api
+      - name: Install poetry
+        run: pip install poetry
+      - name: Check pwd
+        run: pwd
+      - name: Install deps
+        run: poetry install --only dev --no-root backend/api
+      - name: Test
+        run: pytest tests/test*.py
+  

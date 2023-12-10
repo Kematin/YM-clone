@@ -1,8 +1,9 @@
-from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
 
-DEFAULT_IMAGE = "static/imgs/default/default_user.png"
+from pydantic import BaseModel, EmailStr
+
+DEFAULT_USER_IMAGE = "static/imgs/default/default_user.png"
 
 
 class User(BaseModel):
@@ -10,8 +11,8 @@ class User(BaseModel):
     username: str
     email: EmailStr
     password: str
-    image: Optional[str] = DEFAULT_IMAGE
-    created_at: Optional[datetime] = None
+    created_at: datetime
+    image: Optional[str] = DEFAULT_USER_IMAGE
     is_artist: Optional[bool] = False
     liked_playlist_id: List[Optional[int]]
     liked_album_id: List[Optional[int]]
@@ -37,7 +38,7 @@ class RegisterUser(BaseModel):
     username: str
     email: EmailStr
     password: str
-    image: Optional[str] = DEFAULT_IMAGE
+    image: Optional[str] = DEFAULT_USER_IMAGE
 
     class config:
         json_schema_extra = {

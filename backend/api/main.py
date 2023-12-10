@@ -1,5 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
+from models.artists import *
+from models.songs import *
 from models.users import *
 
 app = FastAPI()

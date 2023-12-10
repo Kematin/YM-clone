@@ -7,7 +7,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Move to api
-        run: cd api
+        run: cd backend/api
       - name: Install deps
         run: poetry install --only dev --no-root
       - name: Lint

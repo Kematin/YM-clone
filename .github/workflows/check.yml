@@ -1,4 +1,4 @@
-name: Check
+name: CI
 on: [push, fork]
 jobs:
   lint:
@@ -6,15 +6,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Move to api
-        run: cd backend/api
-      - name: Install poetry
-        run: pip install poetry
-      - name: Check pwd
-        run: pwd
+
       - name: Install deps
-        run: poetry install --only dev --no-root backend/api
+        working-directory: ./backend/api
+        run: |
+          pip install poetry
+          poetry install --only dev --no-root backend/api
+
       - name: Lint
+        working-directory: ./backend/api
         run: flake8 {models,routes,services,tests,settings.py,main.py}
   
   test:
@@ -22,14 +22,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Move to api
-        run: cd backend/api
-      - name: Install poetry
-        run: pip install poetry
-      - name: Check pwd
-        run: pwd
+
       - name: Install deps
-        run: poetry install --only dev --no-root backend/api
+        working-directory: ./backend/api
+        run: |
+          pip install poetry
+          poetry install --only dev --no-root backend/api
+
       - name: Test
+        working-directory: ./backend/api
         run: pytest tests/test*.py
   

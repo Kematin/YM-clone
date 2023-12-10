@@ -6,7 +6,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Move to api
+        run: cd backend
       - name: Install deps
-        run: pip install flake8 flake8-bugbear pep8-naming
+        run: poetry install --only dev --no-root
       - name: Lint
-        run: flake8 backend/api/{models,routes,services,tests,settings.py,main.py}
+        run: flake8 api/{models,routes,services,tests,settings.py,main.py}

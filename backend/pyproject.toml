@@ -12,6 +12,7 @@ pytest = "^7.4.3"
 beanie = "^1.23.6"
 pyjwt = "^2.8.0"
 uvicorn = "^0.24.0.post1"
+pydantic = {extras = ["email"], version = "^2.5.2"}
 
 
 [build-system]

@@ -11,7 +11,7 @@ jobs:
         working-directory: ./backend/api
         run: |
           pip install poetry
-          poetry install --only dev --no-root backend/api
+          poetry install --only dev --no-root
 
       - name: Lint
         working-directory: ./backend/api
@@ -27,7 +27,7 @@ jobs:
         working-directory: ./backend/api
         run: |
           pip install poetry
-          poetry install --only dev --no-root backend/api
+          poetry install --only dev --no-root
 
       - name: Test
         working-directory: ./backend/api

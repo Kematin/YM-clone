@@ -1,12 +1,12 @@
 name: Check
-on: [push, fork, merge]
+on: [push, fork]
 jobs:
-	lint:
-		runs-on: ubuntu-latest
-		steps:
-			- name: Checkout
-				uses: actions/checkout@v4
-			- name: Install deps
-				run: pip install flake8 flake8-bugbear pep8-naming
-			- name: Lint
-				run: flake8 backend/api/{models,routes,services,tests,settings.py,main.py}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install deps
+        run: pip install flake8 flake8-bugbear pep8-naming
+      - name: Lint
+        run: flake8 backend/api/{models,routes,services,tests,settings.py,main.py}

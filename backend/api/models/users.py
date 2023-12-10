@@ -40,7 +40,7 @@ class RegisterUser(BaseModel):
     password: str
     image: Optional[str] = DEFAULT_USER_IMAGE
 
-    class config:
+    class Config:
         json_schema_extra = {
             "example": {
                 "username": "kematin",
@@ -55,7 +55,7 @@ class LoginUser(BaseModel):
     username: str | EmailStr
     password: str
 
-    class config:
+    class Config:
         json_schema_extra = {
             "example": {
                 "username": "kematin",

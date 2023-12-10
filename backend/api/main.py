@@ -1,6 +1,5 @@
 import uvicorn
 from fastapi import FastAPI
-from models.playlists import *
 
 app = FastAPI()
 

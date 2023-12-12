@@ -13,6 +13,9 @@ pyjwt = "^2.8.0"
 uvicorn = "^0.24.0.post1"
 pydantic = {extras = ["email"], version = "^2.5.2"}
 python-dotenv = "^1.0.0"
+sqlalchemy = "^2.0.23"
+pymysql = "^1.1.0"
+pydantic-settings = "^2.1.0"
 
 
 [tool.poetry.group.dev.dependencies]

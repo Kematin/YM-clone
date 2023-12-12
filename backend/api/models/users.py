@@ -1,22 +1,26 @@
 from datetime import datetime
 from typing import List, Optional
 
+from database.connection import Base
 from pydantic import BaseModel, EmailStr
+from sqlalchemy import Boolean, Column, Integer, String
 
 DEFAULT_USER_IMAGE = "static/imgs/default/default_user.png"
 
 
-class User(BaseModel):
-    id: Optional[int] = None  # TODO autoincrement by db
-    username: str
-    email: EmailStr
-    password: str
-    created_at: datetime
-    image: Optional[str] = DEFAULT_USER_IMAGE
-    is_artist: Optional[bool] = False
-    liked_playlist_id: List[Optional[int]]
-    liked_album_id: List[Optional[int]]
-    liked_artist_id: List[Optional[int]]
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True)
+    email = Column(String(50), unique=True)
+    is_artist = Column(Boolean, nullable=True, default=False)
+    password = Column(String)
+    # created_at: datetime
+    # image: Optional[str] = DEFAULT_USER_IMAGE
+    # liked_playlist_id: List[Optional[int]]
+    # liked_album_id: List[Optional[int]]
+    # liked_artist_id: List[Optional[int]]
 
     class Config:
         json_schema_extra = {
@@ -38,9 +42,10 @@ class RegisterUser(BaseModel):
     username: str
     email: EmailStr
     password: str
-    image: Optional[str] = DEFAULT_USER_IMAGE
+    # image: Optional[str] = DEFAULT_USER_IMAGE
 
     class Config:
+        from_attributes = True
         json_schema_extra = {
             "example": {
                 "username": "kematin",

@@ -1,21 +1,22 @@
-# os
+# libs
 import os
 
-# main libs
+# fastapi
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-# routes
 from routes.songs import songs_router
 
-load_dotenv()
+# routes
+from routes.users import users_router
 
+load_dotenv()
 
 # app
 app = FastAPI()
 app.include_router(songs_router, prefix="/songs")
+app.include_router(users_router, prefix="/users")
 
 
 # CORS

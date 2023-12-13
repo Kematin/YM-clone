@@ -15,7 +15,7 @@ class User(Base):
     username = Column(String(50), unique=True)
     email = Column(String(50), unique=True)
     is_artist = Column(Boolean, nullable=True, default=False)
-    password = Column(String)
+    password = Column(String(100))
     # created_at: datetime
     # image: Optional[str] = DEFAULT_USER_IMAGE
     # liked_playlist_id: List[Optional[int]]

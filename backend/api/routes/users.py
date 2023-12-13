@@ -2,6 +2,7 @@ from database.connection import SessionLocal, engine
 from database.crud import Database
 from fastapi import APIRouter, HTTPException, status
 from models.users import Base, RegisterUser, User
+from pydantic import UUID4
 
 Base.metadata.create_all(bind=engine)
 
@@ -33,7 +34,7 @@ async def get_all_users():
 
 
 @users_router.get("/{user_id}")
-async def get_user(user_id: int):
+async def get_user(user_id: UUID4):
     db_user = users_database.get(user_id)
     if db_user:
         return {"user": db_user}

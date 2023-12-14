@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from database.connection import Base
 from pydantic import BaseModel, EmailStr
-from sqlalchemy import Boolean, Column, String, Text
+from sqlalchemy import Boolean, Column, Date, String, Text
 
 DEFAULT_USER_IMAGE = "static/imgs/default/default_user.png"
 
@@ -23,8 +23,8 @@ class User(Base):
     email = Column(String(50), unique=True)
     is_artist = Column(Boolean, nullable=True, default=False)
     password = Column(String)
-    # created_at: datetime
-    # image: Optional[str] = DEFAULT_USER_IMAGE
+    created_at = Column(Date, nullable=False)
+    image = Column(Text, nullable=True, default=DEFAULT_USER_IMAGE)
     # liked_playlist_id: List[Optional[int]]
     # liked_album_id: List[Optional[int]]
     # liked_artist_id: List[Optional[int]]
@@ -77,12 +77,12 @@ class LoginUser(BaseModel):
 
 
 class UpdateUser(BaseModel):
-    username: Optional[str]
-    image: Optional[str]
-    is_artist: Optional[bool]
-    liked_playlist_id: Optional[List[int]]
-    liked_album_id: Optional[List[int]]
-    liked_artist_id: Optional[List[int]]
+    username: Optional[str] = None
+    image: Optional[str] = None
+    is_artist: Optional[bool] = None
+    liked_playlist_id: Optional[List[int]] = None
+    liked_album_id: Optional[List[int]] = None
+    liked_artist_id: Optional[List[int]] = None
 
     class Config:
         json_schema_extra = {

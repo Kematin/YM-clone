@@ -1,22 +1,22 @@
-from typing import Annotated, Any, List
+from typing import Any, List
 
-from fastapi import Depends
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
-from database.connection import Base, SessionLocal
+from database.connection import Base
+
+db_dependency = Session
 
 
-# dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+def close_db(func):
+    def wrapper(self, *args, **kwargs):
+        try:
+            result = func(self, *args, **kwargs)
+            return result
+        finally:
+            self.db.close()
 
-
-db_dependency = Annotated[Session, Depends(get_db)]
+    return wrapper
 
 
 class Database:
@@ -24,18 +24,48 @@ class Database:
         self.model = model
         self.db = db
 
+    @close_db
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Any]:
-        return self.db.query(self.model).offset(skip).limit(limit).all()
+        items = self.db.query(self.model).offset(skip).limit(limit).all()
+        return items
 
-    def get(self, uuid: UUID4) -> Any:
-        item = self.db.query(self.model).filter(self.model.id == str(uuid)).first()
+    @close_db
+    def get(self, id: UUID4 | int) -> Any:
+        item = self.db.query(self.model).filter(self.model.id == str(id)).first()
         if item:
             return item
         else:
             return False
 
+    @close_db
     def create(self, data: dict) -> None:
         db_data = self.model(**data)
         self.db.add(db_data)
         self.db.commit()
         self.db.refresh(db_data)
+
+    @close_db
+    def delete(self, id: UUID4 | int) -> bool:
+        item = self.get(id)
+        if not item:
+            return False
+
+        self.db.delete(item)
+        self.db.commit()
+        return True
+
+    @close_db
+    def update(self, id: UUID4 | int, data: dict) -> Any:
+        db_item = self.get(id)
+
+        if not db_item:
+            return False
+
+        for key, value in data.items():
+            setattr(db_item, key, value)
+
+        self.db.add(db_item)
+        self.db.commit(db_item)
+        self.db.refresh(db_item)
+
+        return db_item

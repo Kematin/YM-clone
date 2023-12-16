@@ -2,14 +2,14 @@ from loguru import logger
 
 
 def create_logger():
-    logger.info("Create logger")
     logger.add(
         "logs/debug.log",
         format="{time} {level} {message}",
         level="INFO",
-        rotation="50 KB",
+        rotation="100 KB",
         compression="zip",
     )
+    logger.info("Create logger")
 
 
 if __name__ == "__main__":

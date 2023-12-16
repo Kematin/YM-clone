@@ -1,12 +1,9 @@
 from typing import List
 
 from database.connection import Base
-from loguru import logger
-from models.users import UpdateUser
 
 
-@logger.catch
-def check_username(user_data: UpdateUser, db_users: List[Base] | None) -> True:
+def check_username(user_data: dict, db_users: List[Base] | None) -> True:
     """Function that checks the received username for reuse in the database
 
     Args:
@@ -18,9 +15,7 @@ def check_username(user_data: UpdateUser, db_users: List[Base] | None) -> True:
         True: username unique.
     """
 
-    user_data = user_data.model_dump()
     new_username = user_data.get("username", None)
-
     if new_username is None:
         return True
 

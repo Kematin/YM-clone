@@ -71,7 +71,7 @@ class Database:
             setattr(db_item, key, value)
 
         self.db.add(db_item)
-        self.db.commit(db_item)
+        self.db.commit()
         self.db.refresh(db_item)
 
         return db_item

@@ -2,7 +2,9 @@
 store.db
 
 # logs
-logs/*
+logs/*.log
+*.log.zip
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -54,6 +54,12 @@ class Database:
         self.db.commit()
         return True
 
+    def delete_all(self) -> None:
+        items = self.get_all()
+        for item in items:
+            self.db.delete(item)
+            self.db.commit()
+
     @close_db
     def update(self, id: UUID4 | int, data: dict) -> Any:
         db_item = self.get(id)

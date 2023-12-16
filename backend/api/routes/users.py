@@ -1,14 +1,22 @@
+# date
 from datetime import date
 
+# db
 from database.connection import SessionLocal, engine
 from database.crud import Database
+
+# libs
 from fastapi import APIRouter, HTTPException, status
 from loguru import logger
+
+# models
 from models.users import Base, RegisterUser, UpdateUser, User
 from pydantic import UUID4
 
 # services
 from services.users import check_username
+
+# exc
 from sqlalchemy.exc import IntegrityError
 
 Base.metadata.create_all(bind=engine)

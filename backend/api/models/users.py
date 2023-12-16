@@ -1,7 +1,9 @@
+# libs
 import uuid
 from datetime import datetime
 from typing import List, Optional
 
+# db dependency
 from database.connection import Base
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import Boolean, Column, Date, String, Text
@@ -49,7 +51,7 @@ class RegisterUser(BaseModel):
     username: str
     email: EmailStr
     password: str
-    # image: Optional[str] = DEFAULT_USER_IMAGE
+    image: Optional[str] = DEFAULT_USER_IMAGE
 
     class Config:
         from_attributes = True

@@ -54,6 +54,7 @@ class Database:
         self.db.commit()
         return True
 
+    @close_db
     def delete_all(self) -> None:
         items = self.get_all()
         for item in items:

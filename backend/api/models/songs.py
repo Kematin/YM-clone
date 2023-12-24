@@ -27,7 +27,7 @@ class Song(BaseModel):
 
 class AddSong(BaseModel):
     name: str
-    song: str
+    file: str
 
     class Settings:
         json_schema_extra = {"example": {"name": "cool song", "file": "song.mp4"}}

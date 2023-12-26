@@ -44,7 +44,6 @@ class Database:
     async def create(self, data: dict) -> None:
         db_data = self._model(**data)
         self._db.add(db_data)
-        await self._uow.commit()
         await self._uow.refresh(db_data)
 
     @close_db
@@ -54,7 +53,6 @@ class Database:
             return False
 
         await self._uow.delete(item)
-        await self._uow.commit()
         return True
 
     @close_db
@@ -62,7 +60,6 @@ class Database:
         items = await self.get_all()
         for item in items:
             await self._uow.delete(item)
-            await self._uow.commit()
 
     @close_db
     async def update(self, id: UUID4 | int, data: dict) -> Any:
@@ -75,7 +72,6 @@ class Database:
             setattr(db_item, key, value)
 
         self._db.add(db_item)
-        await self._uow.commit()
         await self._uow.refresh(db_item)
 
         return db_item

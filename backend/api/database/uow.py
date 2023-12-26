@@ -24,8 +24,10 @@ class SqlAlchemyUoW:
             await self._db.delete(instance)
         except SQLAlchemyError as err:
             raise SQLAlchemyError from err
+        await self.commit()
 
     async def refresh(self, instance) -> None:
+        await self.commit()
         try:
             await self._db.refresh(instance)
         except SQLAlchemyError as err:

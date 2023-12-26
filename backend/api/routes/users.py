@@ -2,7 +2,7 @@
 from datetime import date
 
 # db
-from database.connection import SessionLocal, engine
+from database.connection import AsyncSessionLocal
 from database.crud import Database
 
 # libs
@@ -10,21 +10,19 @@ from fastapi import APIRouter, HTTPException, status
 from loguru import logger
 
 # models
-from models.users import Base, RegisterUser, UpdateUser, User
+from models.users import RegisterUser, UpdateUser, User
 from pydantic import UUID4
 
 # services
 from services.users import check_username
 
 # exc
-from sqlalchemy.exc import IntegrityError
-
-Base.metadata.create_all(bind=engine)
+from sqlalchemy.exc import SQLAlchemyError
 
 
 # dependency
 def get_db():
-    db = SessionLocal()
+    db = AsyncSessionLocal()
     return db
 
 
@@ -38,10 +36,10 @@ async def create_user(user: RegisterUser):
     user = user.model_dump()
     user["created_at"] = date.today()
     try:
-        users_database.create(user)
+        await users_database.create(user)
         logger.info("Create new user with username {}".format(user.get("username")))
         return {"message": "successfull."}
-    except IntegrityError:
+    except SQLAlchemyError:
         logger.warning("Denied user creation: username is already in use")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -52,7 +50,7 @@ async def create_user(user: RegisterUser):
 @users_router.get("/")
 @logger.catch
 async def get_all_users():
-    users_list = users_database.get_all()
+    users_list = await users_database.get_all()
     logger.info("Get users list")
     return {"users": users_list}
 
@@ -60,7 +58,7 @@ async def get_all_users():
 @users_router.get("/{user_id}")
 @logger.catch(exclude=HTTPException)
 async def get_user(user_id: UUID4):
-    db_user = users_database.get(user_id)
+    db_user = await users_database.get(user_id)
     if db_user:
         logger.info(f"Get user with id {user_id}")
         return {"user": db_user}
@@ -75,7 +73,7 @@ async def get_user(user_id: UUID4):
 @users_router.delete("/{user_id}")
 @logger.catch(exclude=HTTPException)
 async def delete_user(user_id: UUID4):
-    db_user = users_database.delete(user_id)
+    db_user = await users_database.delete(user_id)
     if db_user:
         return {"message": "succesfull"}
     else:
@@ -89,7 +87,7 @@ async def delete_user(user_id: UUID4):
 @users_router.delete("/")
 @logger.catch()
 async def delete_all_users():
-    users_database.delete_all()
+    await users_database.delete_all()
     logger.info("Delete all users.")
     return {"message": "succesfull"}
 
@@ -97,7 +95,7 @@ async def delete_all_users():
 @users_router.put("/{user_id}")
 @logger.catch(exclude=HTTPException)
 async def update_user_data(user_id: UUID4, user_data: UpdateUser):
-    db_users = users_database.get_all()
+    db_users = await users_database.get_all()
     user_data = user_data.model_dump()
     if not check_username(user_data, db_users):
         logger.warning(
@@ -108,7 +106,7 @@ async def update_user_data(user_id: UUID4, user_data: UpdateUser):
             detail="User with current username already exist.",
         )
 
-    updated_user = users_database.update(user_id, user_data)
+    updated_user = await users_database.update(user_id, user_data)
 
     if updated_user:
         logger.info(f"Update user data with id {user_id}")

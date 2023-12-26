@@ -1,68 +1,72 @@
 from typing import Any, List
 
 from pydantic import UUID4
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.connection import Base
-
-db_dependency = Session
+from database.uow import SqlAlchemyUoW
 
 
 def close_db(func):
-    def wrapper(self, *args, **kwargs):
+    async def wrapper(self, *args, **kwargs):
         try:
-            result = func(self, *args, **kwargs)
+            result = await func(self, *args, **kwargs)
             return result
         finally:
-            self.db.close()
+            await self._db.close()
 
     return wrapper
 
 
 class Database:
-    def __init__(self, model: Base, db: db_dependency):
-        self.model = model
-        self.db = db
+    def __init__(self, model: Base, db: AsyncSession):
+        self._model = model
+        self._db = db
+        self._uow = SqlAlchemyUoW(db)
 
     @close_db
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[Any]:
-        items = self.db.query(self.model).offset(skip).limit(limit).all()
-        return items
+    async def get_all(self, skip: int = 0, limit: int = 100) -> List[Any]:
+        items = await self._db.execute(select(self._model).offset(skip).limit(limit))
+        return items.scalars().all()
 
     @close_db
-    def get(self, id: UUID4 | int) -> Any:
-        item = self.db.query(self.model).filter(self.model.id == str(id)).first()
+    async def get(self, id: UUID4 | int) -> Any:
+        item = await self._db.execute(
+            select(self._model).filter(self._model.id == str(id))
+        )
         if item:
-            return item
+            return item.scalars().first()
         else:
             return False
 
     @close_db
-    def create(self, data: dict) -> None:
-        db_data = self.model(**data)
-        self.db.add(db_data)
-        self.db.commit()
-        self.db.refresh(db_data)
+    async def create(self, data: dict) -> None:
+        db_data = self._model(**data)
+        self._db.add(db_data)
+        await self._uow.commit()
+        await self._uow.refresh(db_data)
 
     @close_db
-    def delete(self, id: UUID4 | int) -> bool:
-        item = self.get(id)
+    async def delete(self, id: UUID4 | int) -> bool:
+        item = await self.get(id)
         if not item:
             return False
 
-        self.db.delete(item)
-        self.db.commit()
+        await self._uow.delete(item)
+        await self._uow.commit()
         return True
 
-    def delete_all(self) -> None:
-        items = self.get_all()
+    @close_db
+    async def delete_all(self) -> None:
+        items = await self.get_all()
         for item in items:
-            self.db.delete(item)
-            self.db.commit()
+            await self._uow.delete(item)
+            await self._uow.commit()
 
     @close_db
-    def update(self, id: UUID4 | int, data: dict) -> Any:
-        db_item = self.get(id)
+    async def update(self, id: UUID4 | int, data: dict) -> Any:
+        db_item = await self.get(id)
 
         if not db_item:
             return False
@@ -70,8 +74,8 @@ class Database:
         for key, value in data.items():
             setattr(db_item, key, value)
 
-        self.db.add(db_item)
-        self.db.commit()
-        self.db.refresh(db_item)
+        self._db.add(db_item)
+        await self._uow.commit()
+        await self._uow.refresh(db_item)
 
         return db_item

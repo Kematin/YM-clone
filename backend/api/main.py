@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 # fastapi
 import uvicorn
+from database.connection import init_models
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +22,7 @@ load_dotenv()
 # lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await init_models()
     create_logger()
     yield
 

@@ -1,16 +1,19 @@
-from typing import Optional
-
+# db dependency
+from database.connection import Base
 from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, Text
 
 
-class Song(BaseModel):
-    id: Optional[int] = None
-    name: str
-    path: str
-    album_id: int
-    artist_id: int
-    length: int
-    likes: Optional[int] = 0
+class Song(Base):
+    __tablename__ = "songs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), unique=False)
+    path = Column(Text, unique=True)
+    length = Column(Integer)
+    likes = Column(Integer, nullable=True, default=0)
+    # album_id: int
+    # artist_id: int
 
     class Settings:
         json_schema_extra = {
@@ -27,7 +30,7 @@ class Song(BaseModel):
 
 class AddSong(BaseModel):
     name: str
-    file: str
+    path: str
 
     class Settings:
-        json_schema_extra = {"example": {"name": "cool song", "file": "song.mp4"}}
+        json_schema_extra = {"example": {"name": "cool song", "path": "song.mp4"}}

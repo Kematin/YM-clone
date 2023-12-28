@@ -2,7 +2,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-# TODO custom excpetions
+# TODO custom exceptions
 class SqlAlchemyUoW:
     def __init__(self, db: AsyncSession) -> None:
         self._db = db

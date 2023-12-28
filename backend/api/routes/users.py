@@ -6,7 +6,7 @@ from database.connection import AsyncSessionLocal
 from database.crud import Database
 
 # libs
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
 
 # models
@@ -21,18 +21,81 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 # dependency
-def get_db():
-    db = AsyncSessionLocal()
-    return db
+async def get_db():
+    try:
+        db = AsyncSessionLocal()
+        yield db
+    finally:
+        await db.close()
 
 
 users_router = APIRouter(tags=["Users"])
-users_database = Database(User, get_db())
+
+
+@users_router.get("/")
+@logger.catch
+async def get_all_users(db_session=Depends(get_db)):
+    """Retrieve all users
+
+    Args:
+        db_session (_type_, optional): _description_. Defaults to Depends(get_db).
+
+    Returns:
+        _type_: _description_
+    """
+
+    users_database = Database(User, db_session)
+    users_list = await users_database.get_all()
+    logger.info("Get users list")
+    return {"users": users_list}
+
+
+@users_router.get("/{user_id}")
+@logger.catch(exclude=HTTPException)
+async def get_user(user_id: UUID4, db_session=Depends(get_db)):
+    """Retieve single user by uuid
+
+    Args:
+        user_id (UUID4): _description_
+        db_session (_type_, optional): _description_. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    users_database = Database(User, db_session)
+    db_user = await users_database.get(user_id)
+    if db_user:
+        logger.info(f"Get user with id {user_id}")
+        return {"user": db_user}
+    else:
+        logger.warning(f"Can not find user with id {user_id}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found.",
+        )
 
 
 @users_router.post("/", status_code=status.HTTP_201_CREATED)
 @logger.catch(exclude=HTTPException)
-async def create_user(user: RegisterUser):
+async def create_user(user: RegisterUser, db_session=Depends(get_db)):
+    """Create new user
+
+    Args:
+        user (RegisterUser): _description_
+        db_session (_type_, optional): _description_. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    users_database = Database(User, db_session)
     user = user.model_dump()
     user["created_at"] = date.today()
     try:
@@ -47,34 +110,26 @@ async def create_user(user: RegisterUser):
         )
 
 
-@users_router.get("/")
-@logger.catch
-async def get_all_users():
-    users_list = await users_database.get_all()
-    logger.info("Get users list")
-    return {"users": users_list}
-
-
-@users_router.get("/{user_id}")
-@logger.catch(exclude=HTTPException)
-async def get_user(user_id: UUID4):
-    db_user = await users_database.get(user_id)
-    if db_user:
-        logger.info(f"Get user with id {user_id}")
-        return {"user": db_user}
-    else:
-        logger.warning(f"Can not find user with id {user_id}")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} not found.",
-        )
-
-
 @users_router.delete("/{user_id}")
 @logger.catch(exclude=HTTPException)
-async def delete_user(user_id: UUID4):
+async def delete_user(user_id: UUID4, db_session=Depends(get_db)):
+    """Delete user by uuid
+
+    Args:
+        user_id (UUID4): _description_
+        db_session (_type_, optional): _description_. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    users_database = Database(User, db_session)
     db_user = await users_database.delete(user_id)
     if db_user:
+        logger.info(f"Delete user with id {user_id}")
         return {"message": "succesfull"}
     else:
         logger.warning(f"Can not find user with id {user_id}")
@@ -86,7 +141,17 @@ async def delete_user(user_id: UUID4):
 
 @users_router.delete("/")
 @logger.catch()
-async def delete_all_users():
+async def delete_all_users(db_session=Depends(get_db)):
+    """(Temporarily) Delete all users
+
+    Args:
+        db_session (_type_, optional): _description_. Defaults to Depends(get_db).
+
+    Returns:
+        _type_: _description_
+    """
+
+    users_database = Database(User, db_session)
     await users_database.delete_all()
     logger.info("Delete all users.")
     return {"message": "succesfull"}
@@ -94,7 +159,25 @@ async def delete_all_users():
 
 @users_router.put("/{user_id}")
 @logger.catch(exclude=HTTPException)
-async def update_user_data(user_id: UUID4, user_data: UpdateUser):
+async def update_user_data(
+    user_id: UUID4, user_data: UpdateUser, db_session=Depends(get_db)
+):
+    """Update user data
+
+    Args:
+        user_id (UUID4): _description_
+        user_data (UpdateUser): _description_
+        db_session (_type_, optional): _description_. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException (409): Conflict with username
+        HTTPException (404): User not found
+
+    Returns:
+        _type_: _description_
+    """
+
+    users_database = Database(User, db_session)
     db_users = await users_database.get_all()
     user_data = user_data.model_dump()
     if not check_username(user_data, db_users):
